@@ -1,0 +1,15 @@
+# project dependencies
+ultralytics==8.0.0
+torch>=1.7
+opencv-python
+numpy
+requests
+
+# Dev dependencies
+pytest
+black
+flake8
+isort
+pre-commit
+flake8-docstrings
+flake8-black
