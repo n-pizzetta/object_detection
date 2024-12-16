@@ -2,7 +2,7 @@
 ultralytics==8.0.0
 torch>=1.7
 opencv-python
-numpy
+numpy==1.26.4
 requests
 
 # Dev dependencies
