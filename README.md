@@ -38,8 +38,8 @@ A YOLO-based object detection project with a clean setup using `pip`, pre-commit
 1. **Clone the Repository:**
 
 ```bash
-   git clone https://github.com/n-pizzetta/object_detection.git
-   cd object_detection
+git clone https://github.com/n-pizzetta/object_detection.git
+cd object_detection
 ```
 
 2. **Create a Virtual Environment:**
