@@ -6,57 +6,68 @@ import argparse
 import os
 
 import cv2
+import yaml
 
-from src.model_loader import load_model
+from model_loader import load_model
+
+
+def load_config(config_path="config.yaml"):
+    """Load configuration from a YAML file."""
+    if os.path.exists(config_path):
+        with open(config_path, "r") as file:
+            return yaml.safe_load(file)
+    print(f"Config file {config_path} not found.")
+    return {}
 
 
 def parse_args():
     """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="YOLO Video Inference")
     parser.add_argument(
+        "--config",
+        type=str,
+        default="config.yaml",
+        help="Path to configuration file.",
+    )
+    parser.add_argument(
         "--input",
         type=str,
-        default="",
         help="Path to input video file.\
             If not provided, webcam will be used.",
     )
     parser.add_argument(
         "--output",
         type=str,
-        default="",
         help="Path to save the output video.\
         If not provided, output will not be saved.",
     )
     parser.add_argument(
         "--model_path",
         type=str,
-        default="models/yolov8n.pt",
         help="Path to the YOLO model file.",
     )
     parser.add_argument(
         "--remote_url",
         type=str,
-        default=None,
         help="Remote URL to download the YOLO model if not found locally.",
     )
     parser.add_argument(
         "--confidence",
         type=float,
-        default=0.25,
         help="Confidence threshold for detections.",
     )
     parser.add_argument(
         "--iou",
         type=float,
-        default=0.45,
         help="IoU threshold for Non-Max Suppression.",
     )
     parser.add_argument(
         "--device",
         type=str,
-        default="",
-        help="Device to run the model on (e.g., 'cpu', 'cuda').\
-            If not specified, auto-detect.",
+        help=(
+            "Device to run the model on (e.g., 'cpu', 'cuda')."
+            "If not specified, auto-detect."
+        ),
     )
     args = parser.parse_args()
     return args
@@ -65,12 +76,28 @@ def parse_args():
 def main():
     """Execute main function."""
     args = parse_args()
+    config = load_config(args.config)
+
+    # Use CLI arguments to override the configuration
+    input_video = args.input or config.get("paths", {}).get(
+        "input_video", "data/test_video.mp4"
+    )
+    output_dir = args.output or config.get("paths", {}).get("output_directory", ".")
+    model_path = args.model_path or config.get("paths", {}).get(
+        "model_path", "models/yolov8n.pt"
+    )
+    remote_url = args.remote_url or config.get("paths", {}).get("remote_url")
+    confidence = args.confidence or config.get("model", {}).get(
+        "confidence_threshold", 0.25
+    )
+    iou = args.iou or config.get("model", {}).get("iou_threshold", 0.45)
+    device = args.device or config.get("device", {}).get("default", "")
 
     # Load YOLO model
     try:
         model = load_model(
-            local_path=args.model_path,
-            remote_url=args.remote_url,
+            local_path=model_path,
+            remote_url=remote_url,
             auto_download=True,
         )
     except FileNotFoundError as e:
@@ -79,7 +106,7 @@ def main():
 
     # Set device
     if args.device:
-        model.to(args.device)
+        model.to(device)
     else:
         model.to("cuda" if cv2.cuda.getCudaEnabledDeviceCount() > 0 else "cpu")
 
@@ -88,66 +115,17 @@ def main():
         if not os.path.exists(args.input):
             print(f"Input video file {args.input} does not exist.")
             return
-        cap = cv2.VideoCapture(args.input)
-    else:
-        cap = cv2.VideoCapture(0)  # Use webcam
-
-    if not cap.isOpened():
-        print("Error: Could not open video source.")
-        return
-
-    # Get video properties
-    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    fps = (
-        cap.get(cv2.CAP_PROP_FPS) if args.input else 30.0
-    )  # Default to 30 FPS for webcam
-
-    # Initialize video writer if output path is provided
-    if args.output:
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        out = cv2.VideoWriter(args.output, fourcc, fps, (width, height))
-        if not out.isOpened():
-            print(
-                f"Error: Could not open video writer with path {args.output}.",
-            )
-            return
-    else:
-        out = None
-
-    print("Starting video inference. Press 'q' to quit.")
-
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("End of video stream.")
-            break
 
         # Run inference
-        results = model.predict(
-            frame, conf=args.confidence, iou=args.iou, verbose=False
+        model.predict(
+            source=input_video,
+            conf=confidence,
+            iou=iou,
+            verbose=False,
+            save=True,
+            project=output_dir,
+            name="results",
         )
-
-        # Render results on the frame
-        annotated_frame = results[0].plot()
-
-        # Display the frame
-        cv2.imshow("YOLO Video Inference", annotated_frame)
-
-        # Write the frame to the output video if writer is initialized
-        if out:
-            out.write(annotated_frame)
-
-        # Exit on 'q' key
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            print("Quitting video inference.")
-            break
-
-    # Release resources
-    cap.release()
-    if out:
-        out.release()
-    cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":

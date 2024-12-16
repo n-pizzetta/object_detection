@@ -1,0 +1,14 @@
+# Configuration for video inference project
+
+paths:
+  input_video: data/test_video.mp4
+  output_directory: .
+  model_path: models/yolov8n.pt
+  remote_url: https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt
+
+model:
+  confidence_threshold: 0.25
+  iou_threshold: 0.45
+
+device:
+  default: cpu
