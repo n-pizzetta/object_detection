@@ -1,4 +1,5 @@
 # Object Detection
+![PyTorch](https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
 
 A YOLO-based object detection project with a clean setup using `pip`, pre-commit hooks, linting, and testing.
 
