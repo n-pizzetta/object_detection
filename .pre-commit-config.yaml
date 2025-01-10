@@ -1,12 +1,12 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 23.9.1  # Use the latest stable version of Black
+    rev: 24.10.0  # Use the latest stable version of Black
     hooks:
       - id: black
         args: ["--line-length=79"]
 
   - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0  # Use the latest stable version of Flake8
+    rev: 7.1.1  # Use the latest stable version of Flake8
     hooks:
       - id: flake8
         additional_dependencies:
@@ -15,7 +15,7 @@ repos:
         args: ["--max-line-length=79"]
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0  # Use the latest stable version
+    rev: v5.0.0  # Use the latest stable version
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
