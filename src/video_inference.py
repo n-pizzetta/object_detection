@@ -82,7 +82,9 @@ def main():
     input_video = args.input or config.get("paths", {}).get(
         "input_video", "data/test_video.mp4"
     )
-    output_dir = args.output or config.get("paths", {}).get("output_directory", ".")
+    output_dir = args.output or config.get("paths", {}).get(
+        "output_directory", "."
+    )
     model_path = args.model_path or config.get("paths", {}).get(
         "model_path", "models/yolov8n.pt"
     )
