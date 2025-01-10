@@ -99,9 +99,6 @@ python src/video_inference.py \
 **Notes:**<br>
 If the model isn't found locally at `--model_path`, it will attempt to download from `--remote_url` if provided.
 
---- 
-
-Let me know if you need additional details for this section! 🚀
 
 ## 🧪 Testing
 
