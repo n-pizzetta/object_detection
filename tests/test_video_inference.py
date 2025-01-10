@@ -37,7 +37,9 @@ def test_main(mock_video_capture, mock_load_model, mock_path_exists):
         main()
         mock_load_model.assert_called_once_with(
             local_path="models/yolov8n.pt",
-            remote_url="https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt",
+            remote_url=(
+                "https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt"
+            ),
             auto_download=True,
         )
         mock_model.predict.assert_called_once_with(
